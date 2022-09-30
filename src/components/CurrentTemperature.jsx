@@ -1,17 +1,15 @@
 import React from 'react'
 import { useState, useEffect } from 'react';
-import { View, Text, Image, StyleSheet, Platform, NativeModules } from 'react-native'
+import { View, Image, StyleSheet, Platform, NativeModules, TouchableHighlight } from 'react-native'
+import StyledText from './StyledText';
+import Theme from '../Theme';
+import MainIcon from './MainIcon';
 
-const CurrentTemperature = ({weatherData, locationData, location, weatherDataCondition}) => {
+const CurrentTemperature = ({weatherData, locationData, latitude, longitude, weatherDataCondition, setLatitude, setLongitude}) => {
     const [text, setText] = useState(null)
-    const [date, setDate] = useState(null)
-    const [url, setUrl] = useState('')
-    
+
     useEffect(() => {
         setText(weatherDataCondition.text)
-        setUrl(weatherDataCondition.icon)
-
-        console.log(text);
     }, [weatherDataCondition])
 
     useEffect(() => {
@@ -24,16 +22,13 @@ const CurrentTemperature = ({weatherData, locationData, location, weatherDataCon
                 : NativeModules.I18nManager.localeIdentifier;
 
         let date = today.toLocaleDateString(deviceLanguage, options)
-        setDate(date)
     }, [])
-    
-
 
     let temp = 'Loading.',
         feelslike = 'Loading..',
         currentLocation = 'Loading...'
 
-    if (location && weatherData != null) {
+    if (latitude && longitude && weatherData != null) {
         let locationString = JSON.stringify(locationData.name)
         
         temp = JSON.stringify(weatherData.temp_c); 
@@ -44,33 +39,57 @@ const CurrentTemperature = ({weatherData, locationData, location, weatherDataCon
     }
     
     return (
-        <View>
-            <View style={styles.mainContainer}>
-                <Text>{date}</Text>
-                <Text style={styles.midText}>{currentLocation}</Text>
-                <Image source={ { uri: `https:${url}` }} style={styles.tinyLogo}></Image>
-                <Text style={styles.bigText}>{temp + '°C'}</Text>
+        <View style={styles.mainContainer}>
+            <View style={styles.currentContainer}>
+                <StyledText fontSize='medium' fontWeight='bold' color='primary'>{currentLocation}</StyledText>
+                <StyledText color='primary' fontSize='xxxl'>{temp + '°'}</StyledText>
+                <MainIcon weatherDataCondition={weatherDataCondition}></MainIcon>
             </View>
 
-            <Text>{text}</Text>
-            <Text>{feelslike + '°C'}</Text>
+            <View style={styles.tempContainer}>
+                <StyledText>{text} | </StyledText>
+                <StyledText>{feelslike + '°C'}</StyledText>
+            </View>
+
+            <TouchableHighlight onPress={() => {setLatitude(51.52), setLongitude(-0.11)}}>
+                <StyledText>Tocame</StyledText>
+            </TouchableHighlight>
+
+            <Image source={require("../../assets/layered-waves-haikei.png")} style={styles.separator} ></Image>
         </View>
     )
 }
 
 const styles = StyleSheet.create({
     tinyLogo: {
-        width: 250,
+        width: 350,
         height: 250,
     },
-    bigText: {
-        fontSize: 72,
-    },
-    midText: {
-        fontSize: 52,
-    },  
+
     mainContainer: {
         alignItems: "center",
+        justifyContent: 'space-around',
+        flex: 2,
+        backgroundColor: Theme.colors.mainBackground,
+        paddingTop: 30
+    },
+
+    currentContainer: {
+        alignItems: 'center',
+        justifyContent: 'space-evenly',
+        flex: 1
+    },
+
+    tempContainer: {
+        flexDirection: "row",
+        justifyContent: "space-around"
+    },
+
+    separator: {
+        flex: 1, 
+        width: 500, 
+        height: 0, 
+        resizeMode: 'stretch'
     }
 });
 

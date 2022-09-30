@@ -6,52 +6,55 @@ import axios from 'axios';
 import Constants from 'expo-constants'
 import CurrentTemperature from './CurrentTemperature';
 import DailyTemperature from './DailyTemperature';
+import HourlyTemperature from './HourlyTemperature';
 
 const Main = () => {
-    const [location, setLocation] = useState(null);
-    const [errorMsg, setErrorMsg] = useState(null);
+    const [latitude, setLatitude] = useState(null)
+    const [longitude, setLongitude] = useState(null)
     const [weatherData, setWeatherData] = useState([])
     const [weatherDataCondition, setWeatherDataCondition] = useState([])
     const [locationData, setLocationData] = useState([])
 
     useEffect(() => {
         (async () => {
-            let { status } = await Location.requestForegroundPermissionsAsync();
-                if (status !== 'granted') {
-                    setErrorMsg('Permission to access location was denied');
-                    return;
-                }
+            await Location.requestForegroundPermissionsAsync();
             let location = await Location.getCurrentPositionAsync({});
+            setLatitude(location.coords.latitude)
+            setLongitude(location.coords.longitude)
 
-            setLocation(location);
-
-            axios.get(`http://api.weatherapi.com/v1/current.json?key=25ffce30f8954ed7aad223704221509&q=${location.coords.latitude},${location.coords.longitude}`)
-            .then(res => {
-                if (location) {
+            if (latitude && longitude) {
+                axios.get(`http://api.weatherapi.com/v1/current.json?key=850e57a3f1d74fbd9a1142055222909&q=${latitude},${longitude}`)
+                .then(res => {
                     setWeatherData(res.data.current)
                     setWeatherDataCondition(res.data.current.condition)
                     setLocationData(res.data.location)
-                }
-            })
-            .catch(err => console.log(err))
+                })
+                .catch(err => console.log(err))
             }
+        }
         )();
-    }, []);
-
+    }, [longitude && latitude]);
 
     return (
-        <ScrollView style={styles.container} contentContainerStyle={{flexGrow: 1, alignItems: 'center'}}>
-            <CurrentTemperature location={location} weatherData={weatherData} locationData={locationData} weatherDataCondition={weatherDataCondition} />
-            <DailyTemperature location={location} />
+        <ScrollView contentContainerStyle={styles.container}>
+            <CurrentTemperature latitude={latitude} 
+                                longitude={longitude} 
+                                weatherData={weatherData} 
+                                locationData={locationData} 
+                                weatherDataCondition={weatherDataCondition} 
+                                setLatitude={setLatitude}
+                                setLongitude={setLongitude}/>
+            <HourlyTemperature longitude={longitude} latitude={latitude} />
+            <DailyTemperature latitude={latitude} longitude={longitude} />
         </ScrollView>
     )
 }
 
 const styles = StyleSheet.create({
     container: {
-        marginTop: Constants.statusBarHeight,
-        backgroundColor: "#d1d5de",
-        flex: 1,
+        paddingTop: Constants.statusBarHeight,
+        flexGrow: 1, 
+        alignItems: 'center',
     },
 });
 
