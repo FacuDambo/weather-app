@@ -4,6 +4,7 @@ import { View, Image, StyleSheet, Platform, NativeModules, TouchableHighlight } 
 import StyledText from './StyledText';
 import Theme from '../Theme';
 import MainIcon from './MainIcon';
+import { Separator } from './Icons';
 
 const CurrentTemperature = ({weatherData, locationData, latitude, longitude, weatherDataCondition, setLatitude, setLongitude}) => {
     const [text, setText] = useState(null)
@@ -43,7 +44,7 @@ const CurrentTemperature = ({weatherData, locationData, latitude, longitude, wea
             <View style={styles.currentContainer}>
                 <StyledText fontSize='medium' fontWeight='bold' color='primary'>{currentLocation}</StyledText>
                 <StyledText color='primary' fontSize='xxxl'>{temp + '°'}</StyledText>
-                <MainIcon weatherDataCondition={weatherDataCondition}></MainIcon>
+                <MainIcon weatherDataCondition={weatherDataCondition} width={100}></MainIcon>
             </View>
 
             <View style={styles.tempContainer}>
@@ -52,10 +53,13 @@ const CurrentTemperature = ({weatherData, locationData, latitude, longitude, wea
             </View>
 
             <TouchableHighlight onPress={() => {setLatitude(51.52), setLongitude(-0.11)}}>
-                <StyledText>Tocame</StyledText>
+                <StyledText>Cambiar ubicación</StyledText>
+            </TouchableHighlight>
+            <TouchableHighlight onPress={() => {setLatitude(null), setLongitude(null)}}>
+                <StyledText>Volver a ubicacion actual?</StyledText>
             </TouchableHighlight>
 
-            <Image source={require("../../assets/layered-waves-haikei.png")} style={styles.separator} ></Image>
+            <Separator></Separator>
         </View>
     )
 }
@@ -69,7 +73,8 @@ const styles = StyleSheet.create({
     mainContainer: {
         alignItems: "center",
         justifyContent: 'space-around',
-        flex: 2,
+        flex: 1,
+        width: '100%',
         backgroundColor: Theme.colors.mainBackground,
         paddingTop: 30
     },
@@ -84,13 +89,6 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         justifyContent: "space-around"
     },
-
-    separator: {
-        flex: 1, 
-        width: 500, 
-        height: 0, 
-        resizeMode: 'stretch'
-    }
 });
 
 export default CurrentTemperature

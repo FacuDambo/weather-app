@@ -11,36 +11,36 @@ const HourlyTemperature = ({latitude, longitude}) => {
 
     useEffect(() => {
         if (latitude && longitude) {
+            axios.get(`http://api.geonames.org/timezoneJSON?lat=${latitude}&lng=${longitude}&username=FacuDambo`)
+            .then(res => {
+                let time = res.data.time
+                let newDate = time.replace(' ', 'T')
+                setTimezone(newDate)
+            })
+            .catch(err => console.log(err))
+
             axios.get(`http://api.weatherapi.com/v1/forecast.json?key=850e57a3f1d74fbd9a1142055222909&q=${latitude},${longitude}&days=2`)
             .then(res => {
                 setForecast(res.data.forecast.forecastday)
             })
             .catch(err => console.log(err))
 
-
-            axios.get(`http://api.geonames.org/timezoneJSON?lat=${latitude}&lng=${longitude}&username=FacuDambo`)
-            .then(res => {
-                setTimezone(res.data.time)
-            })
-            .catch(err => console.log(err))
         }
     }, [latitude && longitude])
 
     const RenderHour = (hour, index) => {
         let fullDate = hour.time
         let newDate = fullDate.replace(' ', 'T')
-        if (timezone) {
-            let newDate = timezone.replace(' ', 'T')
-            let time = new Date(newDate)
-            var localTime = time.getUTCHours() < 10 ? '0' + time.getUTCHours() : time.getUTCHours()
-            var localDay = time.getUTCDate() 
-        }
-
         let recievedDate = new Date(newDate)
         let recievedDay = recievedDate.getUTCDate()
         let recievedHour = recievedDate.getUTCHours() < 10 ? '0' + recievedDate.getUTCHours() : recievedDate.getUTCHours()
         let recievedMinutes = recievedDate.getUTCMinutes() + '0'
         let actualHour = recievedHour + ":" + recievedMinutes
+        if (timezone) {
+            let time = new Date(timezone)
+            var localTime = time.getUTCHours() < 10 ? '0' + time.getUTCHours() : time.getUTCHours()
+            var localDay = time.getUTCDate()
+        }
 
         if (localDay === recievedDay && localTime < recievedHour) {
             return (

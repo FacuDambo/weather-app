@@ -1,6 +1,6 @@
 import React from 'react'
 import { useState, useEffect } from 'react';
-import { ScrollView, Text, StyleSheet, Image} from 'react-native'
+import { ScrollView, StyleSheet, View} from 'react-native'
 import * as Location from 'expo-location';
 import axios from 'axios';
 import Constants from 'expo-constants'
@@ -19,8 +19,10 @@ const Main = () => {
         (async () => {
             await Location.requestForegroundPermissionsAsync();
             let location = await Location.getCurrentPositionAsync({});
-            setLatitude(location.coords.latitude)
-            setLongitude(location.coords.longitude)
+            if (longitude === null && longitude === null) {
+                setLatitude(location.coords.latitude)
+                setLongitude(location.coords.longitude)
+            }
 
             if (latitude && longitude) {
                 axios.get(`http://api.weatherapi.com/v1/current.json?key=850e57a3f1d74fbd9a1142055222909&q=${latitude},${longitude}`)
@@ -36,17 +38,19 @@ const Main = () => {
     }, [longitude && latitude]);
 
     return (
-        <ScrollView contentContainerStyle={styles.container}>
-            <CurrentTemperature latitude={latitude} 
-                                longitude={longitude} 
-                                weatherData={weatherData} 
-                                locationData={locationData} 
-                                weatherDataCondition={weatherDataCondition} 
-                                setLatitude={setLatitude}
-                                setLongitude={setLongitude}/>
-            <HourlyTemperature longitude={longitude} latitude={latitude} />
-            <DailyTemperature latitude={latitude} longitude={longitude} />
-        </ScrollView>
+        <View style={styles.container2}>
+            <ScrollView contentContainerStyle={styles.container}>
+                <CurrentTemperature latitude={latitude} 
+                                    longitude={longitude} 
+                                    weatherData={weatherData} 
+                                    locationData={locationData} 
+                                    weatherDataCondition={weatherDataCondition} 
+                                    setLatitude={setLatitude}
+                                    setLongitude={setLongitude}/>
+                <HourlyTemperature longitude={longitude} latitude={latitude} />
+                <DailyTemperature latitude={latitude} longitude={longitude} />
+            </ScrollView>
+        </View>
     )
 }
 
@@ -56,6 +60,9 @@ const styles = StyleSheet.create({
         flexGrow: 1, 
         alignItems: 'center',
     },
+    container2: {
+        flexGrow: 1,
+    }
 });
 
 
